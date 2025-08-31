@@ -1,0 +1,26 @@
+# Builder
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Install deps (use package-lock / npm ci for reproducible builds)
+COPY package*.json ./
+RUN npm ci
+
+# Copy source and build
+COPY . .
+RUN npm run build
+
+# Runner
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Copy the standalone output + static assets + public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+
+EXPOSE 3000
+# The standalone output includes server.js and package.json
+CMD ["node", "server.js"]
