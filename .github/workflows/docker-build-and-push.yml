@@ -41,6 +41,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
+          file: ./Docker 
           push: false
           load: true          # loads image into the runner's Docker daemon (single-platform)
           tags: demo1:local
